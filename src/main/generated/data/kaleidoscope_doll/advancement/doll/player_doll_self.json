@@ -1,0 +1,28 @@
+{
+  "parent": "kaleidoscope_doll:doll/credits",
+  "criteria": {
+    "self": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "advancements.kaleidoscope_doll.doll.player_doll_self.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "kaleidoscope_doll:player_doll"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.kaleidoscope_doll.doll.player_doll_self.title"
+    }
+  },
+  "requirements": [
+    [
+      "self"
+    ]
+  ],
+  "sends_telemetry_event": false
+}

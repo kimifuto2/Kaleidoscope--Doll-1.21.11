@@ -1,0 +1,15 @@
+# Gradle / Loom
+.gradle/
+build/
+run/
+# Logs
+logs/
+*.log
+buildlog-*.txt
+# IDE
+.idea/
+*.iml
+.vscode/
+# OS
+.DS_Store
+Thumbs.db

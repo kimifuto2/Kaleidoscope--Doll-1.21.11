@@ -1,0 +1,103 @@
+plugins {
+    id 'eclipse'
+    id 'idea'
+    id 'fabric-loom' version '1.17.19'
+}
+
+version = project.mod_version
+group = project.maven_group
+base {
+    archivesName = "${archives_base_name}-${minecraft_version}-fabric"
+}
+
+loom {
+    splitEnvironmentSourceSets()
+    mods {
+        "kaleidoscope_doll" {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.client
+        }
+    }
+    runs {
+        client {
+            // 可选：-PquickPlayWorld=<存档名> 让 dev 客户端直接进入指定单人存档（用于冒烟测试）
+            if (project.hasProperty('quickPlayWorld')) {
+                programArgs '--quickPlaySingleplayer', project.property('quickPlayWorld').toString()
+            }
+            if (project.hasProperty('quickPlayServer')) {
+                programArgs '--quickPlayMultiplayer', project.property('quickPlayServer').toString()
+            }
+        }
+    }
+}
+
+repositories {
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
+    maven {
+        // JEI
+        name = "Jared's maven"
+        url = "https://maven.blamejared.com/"
+    }
+    maven {
+        name = "ModMaven"
+        url = "https://modmaven.dev"
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings loom.officialMojangMappings()
+
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    // GeckoLib 5.4.5（1.21.11 Fabric）：本地 jar 依赖
+    modImplementation files("libs/geckolib-fabric-1.21.11-5.4.5.jar")
+}
+
+// 数据/资源 JSON 由 tools/generate_data.mjs 生成到 src/main/generated（不再运行 Fabric datagen）。
+sourceSets {
+    main {
+        resources {
+            srcDir 'src/main/generated'
+        }
+        // 上游的 datagen 与 JEI 兼容层本次不参与编译（保留源码备查）。
+        java {
+            exclude 'com/github/ysbbbbbb/kaleidoscopedoll/datagen/**'
+            exclude 'com/github/ysbbbbbb/kaleidoscopedoll/compat/jei/**'
+        }
+    }
+}
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "minecraft_version", project.minecraft_version
+    inputs.property "loader_version", project.loader_version
+    filteringCharset "UTF-8"
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version,
+                "minecraft_version": project.minecraft_version,
+                "loader_version": project.loader_version
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.encoding = "UTF-8"
+    it.options.release = project.java_version.toInteger()
+    it.options.compilerArgs << '-Xmaxerrs' << '10000'
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(project.java_version.toInteger())
+    withSourcesJar()
+}

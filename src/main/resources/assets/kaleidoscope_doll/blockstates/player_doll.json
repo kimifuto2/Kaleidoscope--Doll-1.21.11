@@ -1,0 +1,28 @@
+{
+  "variants": {
+    "facing=north,waterlogged=false": {
+      "model": "kaleidoscope_doll:block/player_doll"
+    },
+    "facing=north,waterlogged=true": {
+      "model": "kaleidoscope_doll:block/player_doll"
+    },
+    "facing=south,waterlogged=false": {
+      "model": "kaleidoscope_doll:block/player_doll"
+    },
+    "facing=south,waterlogged=true": {
+      "model": "kaleidoscope_doll:block/player_doll"
+    },
+    "facing=east,waterlogged=false": {
+      "model": "kaleidoscope_doll:block/player_doll"
+    },
+    "facing=east,waterlogged=true": {
+      "model": "kaleidoscope_doll:block/player_doll"
+    },
+    "facing=west,waterlogged=false": {
+      "model": "kaleidoscope_doll:block/player_doll"
+    },
+    "facing=west,waterlogged=true": {
+      "model": "kaleidoscope_doll:block/player_doll"
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "pack": {
+    "description": "kaleidoscope doll resources",
+    "pack_format": 75,
+    "supported_formats": [
+      75,
+      94
+    ],
+    "min_format": [
+      75,
+      0
+    ],
+    "max_format": [
+      94,
+      1
+    ]
+  }
+}
