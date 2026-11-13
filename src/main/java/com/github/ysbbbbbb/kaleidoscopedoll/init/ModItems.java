@@ -2,6 +2,7 @@ package com.github.ysbbbbbb.kaleidoscopedoll.init;
 
 import com.github.ysbbbbbb.kaleidoscopedoll.KaleidoscopeDoll;
 import com.github.ysbbbbbb.kaleidoscopedoll.item.DollEntityItem;
+import com.github.ysbbbbbb.kaleidoscopedoll.item.PlayerDollEntityItem;
 import com.github.ysbbbbbb.kaleidoscopedoll.item.PlayerDollItem;
 import com.github.ysbbbbbb.kaleidoscopedoll.item.ModBlockItem;
 import net.minecraft.core.Registry;
@@ -37,6 +38,11 @@ public final class ModItems {
     public static final Item PLAYER_DOLL = new PlayerDollItem(ModBlocks.PLAYER_DOLL,
             new Item.Properties().setId(PLAYER_DOLL_ID).stacksTo(16).useBlockDescriptionPrefix().equippable(net.minecraft.world.entity.EquipmentSlot.HEAD));
 
+    public static final ResourceKey<Item> PLAYER_DOLL_ENTITY_ID = id("player_doll_entity");
+    // 堆叠上限用默认值（64）：同档案的物品栈靠 ResolvableProfile 的值相等合并，不同档案不合并
+    public static final Item PLAYER_DOLL_ENTITY = new PlayerDollEntityItem(
+            new Item.Properties().setId(PLAYER_DOLL_ENTITY_ID).useItemDescriptionPrefix());
+
     public static void registerItems() {
         Registry.register(BuiltInRegistries.ITEM, DOLL_MACHINE_ID, DOLL_MACHINE);
         Registry.register(BuiltInRegistries.ITEM, PURPLE_DOLL_GIFT_BOX_ID, PURPLE_DOLL_GIFT_BOX);
@@ -46,6 +52,7 @@ public final class ModItems {
         Registry.register(BuiltInRegistries.ITEM, DOLL_ENTITY_ITEM_ID, DOLL_ENTITY_ITEM);
         Registry.register(BuiltInRegistries.ITEM, COMPUTER_ID, COMPUTER);
         Registry.register(BuiltInRegistries.ITEM, PLAYER_DOLL_ID, PLAYER_DOLL);
+        Registry.register(BuiltInRegistries.ITEM, PLAYER_DOLL_ENTITY_ID, PLAYER_DOLL_ENTITY);
     }
 
     private static ResourceKey<Item> id(String path) {

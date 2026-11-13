@@ -10,6 +10,12 @@ public final class PlayerDollDataTickets {
     public static final DataTicket<ResolvableProfile> PROFILE =
             DataTicket.create("kaleidoscope_doll:profile", ResolvableProfile.class);
 
+    /**
+     * 弹跳结束时间戳（毫秒），渲染时与 {@link System#currentTimeMillis()} 比较做 Q 弹形变
+     */
+    public static final DataTicket<Long> BOUNCE_TIME =
+            DataTicket.create("kaleidoscope_doll:bounce_time", Long.class);
+
     private PlayerDollDataTickets() {
     }
 }

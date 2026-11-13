@@ -248,11 +248,15 @@
   "block.kaleidoscope_doll.player_doll.owner": "%s的玩偶",
   "item.kaleidoscope_doll.player_doll": "玩家玩偶",
   "item.kaleidoscope_doll.player_doll.owner": "%s的玩偶",
+  "item.kaleidoscope_doll.player_doll_entity": "玩家玩偶（实体）",
+  "item.kaleidoscope_doll.player_doll_entity.owner": "%s的玩偶（实体）",
+  "item.kaleidoscopedoll.player_doll_entity.place.tooltip": "- 右击方块或地面进行放置",
+  "item.kaleidoscopedoll.player_doll_entity.no_owner.tooltip": "- 没有绑定玩家档案，放置后显示默认皮肤",
   "tooltip.kaleidoscope_doll.computer.player_doll": "制作 %s 的玩偶（输入槽需有羊毛）",
   "message.kaleidoscope_doll.computer.invalid_name": "玩家ID不合法（3-16 位字母/数字/下划线）",
   "message.kaleidoscope_doll.computer.no_wool": "请先在输入槽放入羊毛",
   "message.kaleidoscope_doll.computer.crafted": "已生成玩偶",
-  "message.kaleidoscope_doll.computer.player_not_found": "找不到玩家",
+  "message.kaleidoscope_doll.computer.player_not_found": "找不到玩家（可能被限流）",
   "message.kaleidoscope_doll.computer.resolve_failed": "玩家档案解析失败，请稍后再试",
   "advancement.kaleidoscope_doll.player_doll_self.title": "这是我吗",
   "advancement.kaleidoscope_doll.player_doll_self.description": "获得一个属于你自己的玩家玩偶",
@@ -260,5 +264,9 @@
   "advancements.kaleidoscope_doll.doll.player_doll_self.description": "获得属于自己的玩家玩偶",
   "message.kaleidoscope_doll.computer.crafting": "正在制作玩偶…",
   "message.kaleidoscope_doll.computer.busy": "正在制作其他玩偶，请稍候",
-  "message.kaleidoscope_doll.computer.select_doll": "请先在网格中选择一个玩偶"
+  "message.kaleidoscope_doll.computer.output_full": "输出槽已满或已有其它玩偶",
+  "message.kaleidoscope_doll.computer.select_doll": "请先在网格中选择一个玩偶",
+  "message.kaleidoscope_doll.computer.rate_limited": "查询过于频繁，请稍后再试",
+  "message.kaleidoscope_doll.computer.lookup_failed": "玩家名查询失败，请检查网络",
+  "message.kaleidoscope_doll.computer.invalid_player_id": "非合法玩家 ID"
 }

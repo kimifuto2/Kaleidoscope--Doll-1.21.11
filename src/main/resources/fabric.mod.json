@@ -19,7 +19,9 @@
       "com.github.ysbbbbbb.kaleidoscopedoll.KaleidoscopeDollClient"
     ]
   },
-  "mixins": [],
+  "mixins": [
+    "mixins.kaleidoscopedoll.json"
+  ],
   "depends": {
     "fabricloader": ">=${loader_version}",
     "fabric-api": "*",

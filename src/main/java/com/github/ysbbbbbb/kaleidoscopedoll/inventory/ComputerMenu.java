@@ -83,11 +83,6 @@ public class ComputerMenu extends AbstractContainerMenu {
         public boolean canPlaceItem(int slot, ItemStack stack) {
             return false;
         }
-
-        @Override
-        public int getMaxStackSize() {
-            return 1;
-        }
     };
 
     public ComputerMenu(int containerId, Inventory playerInventory) {
@@ -108,16 +103,11 @@ public class ComputerMenu extends AbstractContainerMenu {
             }
         });
 
-        // 输出槽：只能取不能放
+        // 输出槽：只能取不能放（堆叠上限交给 ItemStack#getMaxStackSize）
         this.addSlot(new Slot(this.output, 0, 151, 98) {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 return false;
-            }
-
-            @Override
-            public int getMaxStackSize() {
-                return 1;
             }
 
             @Override
@@ -156,6 +146,11 @@ public class ComputerMenu extends AbstractContainerMenu {
             this.sendStatus("message.kaleidoscope_doll.computer.busy", "");
             return false;
         }
+        // 预检查：输出槽空着、或已有同种玩偶且未堆满才允许开工（避免白等 3 秒）
+        if (!this.canAddToOutput(createOutputStack(doll.get(ModDataComponent.DOLL_OWNER), doll))) {
+            this.sendStatus("message.kaleidoscope_doll.computer.output_full", "");
+            return false;
+        }
         ResolvableProfile profile = doll.get(ModDataComponent.DOLL_OWNER);
         if (profile != null) {
             this.pendingDoll = ItemStack.EMPTY;
@@ -170,6 +165,37 @@ public class ComputerMenu extends AbstractContainerMenu {
         this.sendStatus("message.kaleidoscope_doll.computer.crafting", "");
         this.broadcastChanges();
         return true;
+    }
+
+    /**
+     * 本次制作会生成什么物品栈（不放进槽位，仅用于合并判断/预检查）。
+     */
+    private ItemStack createOutputStack(@Nullable ResolvableProfile profile, ItemStack doll) {
+        if (profile != null) {
+            ItemStack stack = new ItemStack(ModItems.PLAYER_DOLL);
+            stack.set(ModDataComponent.DOLL_OWNER, profile);
+            stack.set(DataComponents.PROFILE, profile);
+            return stack;
+        }
+        if (!doll.isEmpty()) {
+            return new ItemStack(doll.getItem());
+        }
+        return ItemStack.EMPTY;
+    }
+
+    /**
+     * 输出槽是否能接住这一件成品：空位，或同种物品且未达该物品的堆叠上限。
+     */
+    private boolean canAddToOutput(ItemStack outputStack) {
+        if (outputStack.isEmpty()) {
+            return false;
+        }
+        ItemStack current = this.output.getItem(0);
+        if (current.isEmpty()) {
+            return true;
+        }
+        return ItemStack.isSameItemSameComponents(current, outputStack)
+                && current.getCount() < current.getMaxStackSize();
     }
 
     private boolean isCrafting() {
@@ -197,18 +223,25 @@ public class ComputerMenu extends AbstractContainerMenu {
             this.craftTime++;
             return;
         }
-        ItemStack outputStack;
-        if (this.pendingProfile != null) {
-            outputStack = new ItemStack(ModItems.PLAYER_DOLL);
-            outputStack.set(ModDataComponent.DOLL_OWNER, this.pendingProfile);
-            outputStack.set(DataComponents.PROFILE, this.pendingProfile);
-        } else if (!this.pendingDoll.isEmpty()) {
-            outputStack = new ItemStack(this.pendingDoll.getItem());
-        } else {
+        ItemStack outputStack = this.createOutputStack(this.pendingProfile, this.pendingDoll);
+        if (outputStack.isEmpty()) {
             this.resetCraft();
             return;
         }
-        this.output.setItem(0, outputStack);
+        // 输出槽已有同种玩偶时叠上去；否则（空位 = 直接放；不同种/已满 = 中止且不扣羊毛）
+        ItemStack current = this.output.getItem(0);
+        if (current.isEmpty()) {
+            this.output.setItem(0, outputStack);
+        } else if (ItemStack.isSameItemSameComponents(current, outputStack)
+                && current.getCount() < current.getMaxStackSize()) {
+            current.grow(1);
+            this.output.setChanged();
+        } else {
+            this.resetCraft();
+            this.sendStatus("message.kaleidoscope_doll.computer.output_full", "");
+            return;
+        }
+        // 只有成品成功放进/叠进输出槽后才扣羊毛
         this.input.removeItem(0, 1);
         this.input.setChanged();
         this.resetCraft();
@@ -266,6 +299,11 @@ public class ComputerMenu extends AbstractContainerMenu {
             if (result.status() == PlayerProfileResolver.Status.NOT_FOUND) {
                 player.sendSystemMessage(Component.translatable(
                         "message.kaleidoscope_doll.computer.player_not_found", trimmed));
+                return;
+            }
+            if (result.status() == PlayerProfileResolver.Status.RATE_LIMITED) {
+                player.sendSystemMessage(Component.translatable(
+                        "message.kaleidoscope_doll.computer.rate_limited"));
                 return;
             }
             if (!result.hasProfile()) {

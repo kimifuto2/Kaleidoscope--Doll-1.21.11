@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "kaleidoscope_doll:item/player_doll_base",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

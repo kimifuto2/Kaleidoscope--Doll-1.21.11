@@ -8,9 +8,12 @@ import com.github.ysbbbbbb.kaleidoscopedoll.init.ModEntities;
 import com.github.ysbbbbbb.kaleidoscopedoll.init.ModMenuTypes;
 import com.github.ysbbbbbb.kaleidoscopedoll.render.DollEntityRender;
 import com.github.ysbbbbbb.kaleidoscopedoll.render.PlayerDollGeoModel;
+import com.github.ysbbbbbb.kaleidoscopedoll.render.PlayerDollEntityRenderer;
+import com.github.ysbbbbbb.kaleidoscopedoll.render.PlayerDollEntityItemRenderer;
 import com.github.ysbbbbbb.kaleidoscopedoll.render.PlayerDollSkins;
 import com.github.ysbbbbbb.kaleidoscopedoll.render.PlayerDollItemRenderer;
 import com.github.ysbbbbbb.kaleidoscopedoll.render.PlayerDollTrinketRenderer;
+import com.github.ysbbbbbb.kaleidoscopedoll.item.PlayerDollEntityItem;
 import com.github.ysbbbbbb.kaleidoscopedoll.item.PlayerDollItem;
 import com.github.ysbbbbbb.kaleidoscopedoll.init.ModItems;
 import software.bernie.geckolib.animatable.client.GeoRenderProvider;
@@ -49,6 +52,9 @@ public class KaleidoscopeDollClient implements ClientModInitializer {
         // 普通实体玩偶（方块模型渲染）
         EntityRendererRegistry.register(ModEntities.DOLL, DollEntityRender::new);
 
+        // 玩家实体玩偶（GeckoLib 坐姿玩家模型 + 玩家皮肤）
+        EntityRendererRegistry.register(ModEntities.PLAYER_DOLL, PlayerDollEntityRenderer::new);
+
         // 玩家玩偶作为 Trinkets 头饰渲染（未装 Trinkets 时自动跳过）
         PlayerDollTrinketRenderer.register();
 
@@ -57,6 +63,19 @@ public class KaleidoscopeDollClient implements ClientModInitializer {
             dollItem.geoRenderProvider.set(new GeoRenderProvider() {
                 private final java.util.function.Supplier<GeoItemRenderer<PlayerDollItem>> renderer =
                         com.google.common.base.Suppliers.memoize(PlayerDollItemRenderer::new);
+
+                @Override
+                public GeoItemRenderer<?> getGeoItemRenderer() {
+                    return this.renderer.get();
+                }
+            });
+        }
+
+        // 玩家实体玩偶物品：同样是 3D 带皮肤的玩偶图标
+        if (ModItems.PLAYER_DOLL_ENTITY instanceof PlayerDollEntityItem entityItem) {
+            entityItem.geoRenderProvider.set(new GeoRenderProvider() {
+                private final java.util.function.Supplier<GeoItemRenderer<PlayerDollEntityItem>> renderer =
+                        com.google.common.base.Suppliers.memoize(PlayerDollEntityItemRenderer::new);
 
                 @Override
                 public GeoItemRenderer<?> getGeoItemRenderer() {
@@ -85,7 +104,7 @@ public class KaleidoscopeDollClient implements ClientModInitializer {
                         var parsed = net.minecraft.world.item.component.ResolvableProfile.CODEC
                                 .parse(net.minecraft.nbt.NbtOps.INSTANCE, payload.profileTag())
                                 .result().orElse(null);
-                        screen.setPreview(parsed, payload.name(), payload.found());
+                        screen.setPreview(parsed, payload.name(), payload.found(), payload.status());
                     }
                 }));
 

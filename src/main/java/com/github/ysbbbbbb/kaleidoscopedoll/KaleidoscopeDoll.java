@@ -57,11 +57,27 @@ public class KaleidoscopeDoll implements ModInitializer {
             if (server == null) {
                 return;
             }
+            // 服务端兜底校验：名字不合法时根本不发请求（客户端已先过滤，这里防止伪造包消耗配额）
+            if (!com.github.ysbbbbbb.kaleidoscopedoll.server.PlayerProfileResolver.isValidName(payload.name())) {
+                ServerPlayNetworking.send(player, PlayerDollPreviewResponsePayload.notFound(payload.name()));
+                return;
+            }
             com.github.ysbbbbbb.kaleidoscopedoll.server.PlayerProfileResolver.resolve(server, payload.name())
                     .whenComplete((result, throwable) -> server.execute(() -> {
-                        if (throwable != null || result == null || !result.hasProfile()) {
-                            ServerPlayNetworking.send(player, new PlayerDollPreviewResponsePayload(
-                                    new CompoundTag(), payload.name(), false));
+                        if (throwable != null || result == null) {
+                            ServerPlayNetworking.send(player, PlayerDollPreviewResponsePayload.ofStatus(
+                                    payload.name(), PlayerDollPreviewResponsePayload.STATUS_ERROR));
+                            return;
+                        }
+                        if (!result.hasProfile()) {
+                            // 把「查不到」「被限流」「其它失败」分开回传，GUI 才能给出准确提示
+                            String status = switch (result.status()) {
+                                case NOT_FOUND -> PlayerDollPreviewResponsePayload.STATUS_NOT_FOUND;
+                                case RATE_LIMITED -> PlayerDollPreviewResponsePayload.STATUS_RATE_LIMITED;
+                                case FAILED -> PlayerDollPreviewResponsePayload.STATUS_ERROR;
+                                default -> PlayerDollPreviewResponsePayload.STATUS_NOT_FOUND;
+                            };
+                            ServerPlayNetworking.send(player, PlayerDollPreviewResponsePayload.ofStatus(payload.name(), status));
                             return;
                         }
                         var encoded = ResolvableProfile.CODEC.encodeStart(
@@ -70,7 +86,7 @@ public class KaleidoscopeDoll implements ModInitializer {
                         net.minecraft.nbt.Tag rawTag = encoded.result().orElseGet(CompoundTag::new);
                         CompoundTag tag = rawTag instanceof CompoundTag compoundTag ? compoundTag : new CompoundTag();
                         ServerPlayNetworking.send(player, new PlayerDollPreviewResponsePayload(
-                                tag, payload.name(), true));
+                                tag, payload.name(), true, PlayerDollPreviewResponsePayload.STATUS_OK));
                     }));
         });
 

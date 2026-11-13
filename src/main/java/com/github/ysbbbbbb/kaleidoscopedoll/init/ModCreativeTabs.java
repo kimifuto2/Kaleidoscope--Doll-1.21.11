@@ -48,6 +48,7 @@ public class ModCreativeTabs {
                 .icon(() -> BuiltInRegistries.ITEM.getValue(PLAYER_ICON_ID).getDefaultInstance())
                 .displayItems((par, output) -> {
                     output.accept(new ItemStack(ModItems.PLAYER_DOLL));
+                    output.accept(new ItemStack(ModItems.PLAYER_DOLL_ENTITY));
                     ModRegisterEvent.DOLL_ITEMS.stream()
                             .filter(item -> SPECIAL_TOOLTIPS.containsKey(BuiltInRegistries.ITEM.getKey(item)))
                             .forEach(output::accept);

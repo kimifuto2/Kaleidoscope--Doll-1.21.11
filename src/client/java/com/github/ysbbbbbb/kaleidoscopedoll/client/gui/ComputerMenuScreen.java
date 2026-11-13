@@ -56,7 +56,8 @@ public class ComputerMenuScreen extends AbstractContainerScreen<ComputerMenu> {
     private ItemStack previewDoll = ItemStack.EMPTY;
     private boolean playerMode;
     private String lastRequestedName = "";
-    private long lastRequestTime;
+    /** 最后一次输入的时间：用于「停止输入满 500ms」的 trailing debounce */
+    private long lastInputTime;
     private String statusKey = "";
     private String statusArg = "";
     private long statusUntil;
@@ -98,6 +99,8 @@ public class ComputerMenuScreen extends AbstractContainerScreen<ComputerMenu> {
         this.searchField.moveCursorToEnd(true);
         // 实时搜索：普通文本即时过滤，@ 开头进入玩家预览模式
         this.searchField.setResponder(text -> {
+            // 记录输入时间：render 里做「停止输入满 500ms 才发一次」的 trailing debounce
+            this.lastInputTime = System.currentTimeMillis();
             if (text.trim().startsWith("@")) {
                 this.playerMode = true;
                 this.selectedDoll = ItemStack.EMPTY;
@@ -213,13 +216,13 @@ public class ComputerMenuScreen extends AbstractContainerScreen<ComputerMenu> {
         return this.searchField.getValue().trim().replaceFirst("^@\\+?", "").trim();
     }
 
-    /** 服务端返回玩家预览档案。 */
-    public void setPreview(ResolvableProfile profile, String name, boolean found) {
+    /** 服务端返回玩家预览档案（status 区分「查不到 / 被限流 / 查询失败」）。 */
+    public void setPreview(ResolvableProfile profile, String name, boolean found, String status) {
         String current = this.currentPlayerName();
         if (!name.equals(current)) {
             return;
         }
-        if (found) {
+        if (found && profile != null) {
             ItemStack stack = new ItemStack(com.github.ysbbbbbb.kaleidoscopedoll.init.ModItems.PLAYER_DOLL);
             stack.set(ModDataComponent.DOLL_OWNER, profile);
             stack.set(DataComponents.PROFILE, profile);
@@ -227,7 +230,14 @@ public class ComputerMenuScreen extends AbstractContainerScreen<ComputerMenu> {
         } else {
             this.previewDoll = ItemStack.EMPTY;
             this.selectedDoll = ItemStack.EMPTY;
-            this.setStatus("message.kaleidoscope_doll.computer.player_not_found", "");
+            String key = switch (status == null ? "" : status) {
+                case com.github.ysbbbbbb.kaleidoscopedoll.network.PlayerDollPreviewResponsePayload.STATUS_RATE_LIMITED ->
+                        "message.kaleidoscope_doll.computer.rate_limited";
+                case com.github.ysbbbbbb.kaleidoscopedoll.network.PlayerDollPreviewResponsePayload.STATUS_ERROR ->
+                        "message.kaleidoscope_doll.computer.lookup_failed";
+                default -> "message.kaleidoscope_doll.computer.player_not_found";
+            };
+            this.setStatus(key, "");
         }
         this.rebuildDolls();
     }
@@ -308,14 +318,21 @@ public class ComputerMenuScreen extends AbstractContainerScreen<ComputerMenu> {
             }
         }
 
-        // 玩家预览请求（300ms 防抖）
-        if (this.playerMode && this.searchField != null) {
-            String name = this.searchField.getValue().trim().replaceFirst("^@\\+?", "").trim();
-            if (!name.isEmpty() && !name.equals(this.lastRequestedName)
-                    && System.currentTimeMillis() - this.lastRequestTime > 300) {
+        // 玩家预览请求：停止输入满 500ms（trailing debounce）才发一次，且只对合法玩家名发请求
+        long now = System.currentTimeMillis();
+        if (this.playerMode && this.searchField != null && now - this.lastInputTime >= 500) {
+            String name = this.currentPlayerName();
+            if (!name.equals(this.lastRequestedName)) {
+                // 名字一变就记下来：避免每帧重复弹提示 / 重复发请求
                 this.lastRequestedName = name;
-                this.lastRequestTime = System.currentTimeMillis();
-                ClientPlayNetworking.send(new PlayerDollPreviewPayload(name));
+                if (name.matches("^[A-Za-z0-9_]{3,16}$")) {
+                    ClientPlayNetworking.send(new PlayerDollPreviewPayload(name));
+                } else if (!name.isEmpty()) {
+                    // 非法名不发请求（省 Mojang 配额），只提示
+                    this.previewDoll = ItemStack.EMPTY;
+                    this.setStatus("message.kaleidoscope_doll.computer.invalid_player_id", "");
+                    this.rebuildDolls();
+                }
             }
         }
 

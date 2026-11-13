@@ -248,11 +248,15 @@
   "block.kaleidoscope_doll.player_doll.owner": "%s's Doll",
   "item.kaleidoscope_doll.player_doll": "Player Doll",
   "item.kaleidoscope_doll.player_doll.owner": "%s's Doll",
+  "item.kaleidoscope_doll.player_doll_entity": "Player Doll (Entity)",
+  "item.kaleidoscope_doll.player_doll_entity.owner": "%s's Doll (Entity)",
+  "item.kaleidoscopedoll.player_doll_entity.place.tooltip": "- Right-click a block or the ground to place",
+  "item.kaleidoscopedoll.player_doll_entity.no_owner.tooltip": "- No player profile bound; the default skin will be used",
   "tooltip.kaleidoscope_doll.computer.player_doll": "Craft %s's doll (needs wool in the input slot)",
   "message.kaleidoscope_doll.computer.invalid_name": "Invalid player name (3-16 letters/digits/underscore)",
   "message.kaleidoscope_doll.computer.no_wool": "Put wool into the input slot first",
   "message.kaleidoscope_doll.computer.crafted": "Doll crafted",
-  "message.kaleidoscope_doll.computer.player_not_found": "Player not found",
+  "message.kaleidoscope_doll.computer.player_not_found": "Not found (maybe limited)",
   "message.kaleidoscope_doll.computer.resolve_failed": "Failed to resolve the player profile, try again later",
   "advancement.kaleidoscope_doll.player_doll_self.title": "Is This Me?",
   "advancement.kaleidoscope_doll.player_doll_self.description": "Obtain a player doll of yourself",
@@ -260,5 +264,9 @@
   "advancements.kaleidoscope_doll.doll.player_doll_self.description": "Obtain a player doll of yourself",
   "message.kaleidoscope_doll.computer.crafting": "Crafting the doll…",
   "message.kaleidoscope_doll.computer.busy": "Another doll is being crafted",
-  "message.kaleidoscope_doll.computer.select_doll": "Select a doll in the grid first"
+  "message.kaleidoscope_doll.computer.output_full": "Output slot is full or holds another doll",
+  "message.kaleidoscope_doll.computer.select_doll": "Select a doll in the grid first",
+  "message.kaleidoscope_doll.computer.rate_limited": "Too many lookups, try again later",
+  "message.kaleidoscope_doll.computer.lookup_failed": "Player lookup failed, check your network",
+  "message.kaleidoscope_doll.computer.invalid_player_id": "Invalid player ID"
 }
