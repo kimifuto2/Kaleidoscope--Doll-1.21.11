@@ -13,3 +13,6 @@ buildlog-*.txt
 # OS
 .DS_Store
 Thumbs.db
+
+# Test evidence screenshots
+_shots/

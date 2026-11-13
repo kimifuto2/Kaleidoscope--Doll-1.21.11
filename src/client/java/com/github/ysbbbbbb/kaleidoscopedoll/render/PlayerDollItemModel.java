@@ -13,6 +13,18 @@ import software.bernie.geckolib.renderer.base.GeoRenderState;
 public class PlayerDollItemModel extends GeoModel<PlayerDollItem> {
     private static final Identifier STEVE = Identifier.fromNamespaceAndPath(KaleidoscopeDoll.MOD_ID, "item/player_doll_steve");
     private static final Identifier ALEX = Identifier.fromNamespaceAndPath(KaleidoscopeDoll.MOD_ID, "item/player_doll_alex");
+    /**
+     * 无档案时的兜底贴图（64×64 纯白玩偶）。
+     * <p>
+     * 注意这里是 <b>完整贴图路径</b>（带 {@code textures/} 前缀与 {@code .png} 后缀），不是模型空间 id：
+     * GeckoLib 的 {@code GeoModel#getTextureResource} 最终会交给 {@code RenderTypes.entityCutoutNoCull(texture)}，
+     * 该 identifier 由 TextureManager 直接按 {@code assets/<ns>/<path>} 读取。
+     * 可对照 GeckoLib {@code DefaultedGeoModel#buildFormattedTexturePath} 拼出的就是 {@code textures/<subtype>/<name>.png}，
+     * 以及原版 {@code EndCrystalRenderer} 用字面量 {@code "textures/entity/end_crystal/end_crystal.png"} 调同一个 RenderType。
+     * 若改成 {@code kaleidoscope_doll:block/doll/player_doll}（模型空间写法），会解析到不存在的
+     * {@code assets/kaleidoscope_doll/block/doll/player_doll} → 紫黑缺失贴图。
+     * 模型 id（{@link #getModelResource}）才是模型空间写法，两者规则不同。
+     */
     private static final Identifier WHITE_TEXTURE = Identifier.fromNamespaceAndPath(
             KaleidoscopeDoll.MOD_ID, "textures/block/doll/player_doll.png");
 
