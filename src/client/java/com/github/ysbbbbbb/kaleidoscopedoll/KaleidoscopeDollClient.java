@@ -22,6 +22,7 @@ import com.github.ysbbbbbb.kaleidoscopedoll.debug.DollDebug;
 import software.bernie.geckolib.renderer.GeoBlockRenderer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import com.github.ysbbbbbb.kaleidoscopedoll.network.ComputerStatusPayload;
@@ -38,7 +39,16 @@ public class KaleidoscopeDollClient implements ClientModInitializer {
         BlockRenderLayerMap.putBlock(ModBlocks.DOLL_MACHINE, ChunkSectionLayer.CUTOUT);
         ModRegisterEvent.DOLL_BLOCKS.values().forEach(block -> BlockRenderLayerMap.putBlock(block, ChunkSectionLayer.CUTOUT));
 
-        // 实体玩偶渲染器（render state 管线）
+        // 玩家玩偶方块：GeckoLib 方块渲染器 + 初始化皮肤缓存
+        // 注意：1.21.11 的 Context 访问器是 playerSkinRenderCache()（record 风格），不是 getPlayerSkinRenderCache()
+        BlockEntityRendererRegistry.register(ModBlockEntities.PLAYER_DOLL, context -> {
+            PlayerDollSkins.init(context.playerSkinRenderCache());
+            return new GeoBlockRenderer<>(new PlayerDollGeoModel());
+        });
+
+        // 普通实体玩偶（方块模型渲染）
+        EntityRendererRegistry.register(ModEntities.DOLL, DollEntityRender::new);
+
         // 玩家玩偶作为 Trinkets 头饰渲染（未装 Trinkets 时自动跳过）
         PlayerDollTrinketRenderer.register();
 
