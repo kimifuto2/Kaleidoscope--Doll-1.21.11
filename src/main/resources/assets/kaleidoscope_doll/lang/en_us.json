@@ -268,5 +268,6 @@
   "message.kaleidoscope_doll.computer.select_doll": "Select a doll in the grid first",
   "message.kaleidoscope_doll.computer.rate_limited": "Too many lookups, try again later",
   "message.kaleidoscope_doll.computer.lookup_failed": "Player lookup failed, check your network",
-  "message.kaleidoscope_doll.computer.invalid_player_id": "Invalid player ID"
+  "message.kaleidoscope_doll.computer.invalid_player_id": "Invalid player ID",
+  "trinkets.slot.head.doll": "Doll"
 }

@@ -268,5 +268,6 @@
   "message.kaleidoscope_doll.computer.select_doll": "请先在网格中选择一个玩偶",
   "message.kaleidoscope_doll.computer.rate_limited": "查询过于频繁，请稍后再试",
   "message.kaleidoscope_doll.computer.lookup_failed": "玩家名查询失败，请检查网络",
-  "message.kaleidoscope_doll.computer.invalid_player_id": "非合法玩家 ID"
+  "message.kaleidoscope_doll.computer.invalid_player_id": "非合法玩家 ID",
+  "trinkets.slot.head.doll": "玩偶"
 }

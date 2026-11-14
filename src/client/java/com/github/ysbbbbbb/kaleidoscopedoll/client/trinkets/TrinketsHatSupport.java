@@ -23,6 +23,8 @@ import java.util.Optional;
 public final class TrinketsHatSupport {
     private static final String MOD_ID = "trinkets";
     private static final String HEAD_GROUP = "head";
+    /** 本模组为玩偶单独注册的 Trinkets 饰品组（data/trinkets/slots/doll）。 */
+    private static final String DOLL_GROUP = "doll";
     private static final boolean TRINKETS_LOADED = FabricLoader.getInstance().isModLoaded(MOD_ID);
 
     private static boolean initialized;
@@ -77,8 +79,9 @@ public final class TrinketsHatSupport {
                     continue;
                 }
                 String group = groupOf(entry);
-                // 取不到组名时退回 SimpleHats 的"任意槽位戴着即算"行为
-                if (group == null || HEAD_GROUP.equalsIgnoreCase(group)) {
+                // 取不到组名时退回 SimpleHats 的"任意槽位戴着即算"行为；
+                // head 组兼容旧存档（玩偶以前放在帽子槽），doll 组是新的独立玩偶槽
+                if (group == null || HEAD_GROUP.equalsIgnoreCase(group) || DOLL_GROUP.equalsIgnoreCase(group)) {
                     return true;
                 }
             }

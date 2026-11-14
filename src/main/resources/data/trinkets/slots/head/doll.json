@@ -1,0 +1,7 @@
+{
+  "icon": "kaleidoscope_doll:gui/slots/doll",
+  "order": -256,
+  "validator_predicates": [
+    "trinkets:tag"
+  ]
+}
