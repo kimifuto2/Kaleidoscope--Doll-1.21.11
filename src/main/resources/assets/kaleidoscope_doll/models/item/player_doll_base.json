@@ -75,7 +75,7 @@
     "ground": {
       "translation": [
         0,
-        -2,
+        2,
         0
       ],
       "scale": [
@@ -111,7 +111,7 @@
     "fixed": {
       "translation": [
         0,
-        -8.5,
+        1.5,
         0
       ],
       "scale": [
