@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "kaleidoscope_doll:item/doll_entity_base",
+    "model": {
+      "type": "kaleidoscope_doll:doll_block"
+    }
+  }
+}

@@ -24,6 +24,9 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
@@ -77,8 +80,20 @@ public class DollEntityItem extends Item {
     }
 
     /**
-     * 1.21.4+ 的物品模型由数据组件决定：把玩偶的模型 id 写到 ITEM_MODEL 上，
-     * 客户端就会用 assets/kaleidoscope_doll/items/&lt;id&gt;.json 的模型来渲染这个物品。
+     * 实体玩偶物品统一使用的 special model id。
+     * <p>
+     * 以前是把 {@code ITEM_MODEL} 直接指向方块 id（{@code kaleidoscope_doll:doll_N}），套用方块模型；
+     * 方块模型走方块图集 + CUTOUT 层，在 Iris 光影下的世界物品渲染（GROUND，含基座/掉落物）会变透明。
+     * 现在改走自定义 special model（{@code entityCutoutNoCull} + 每只玩偶的独立贴图）。
+     */
+    public static final Identifier SPECIAL_ITEM_MODEL =
+            Identifier.fromNamespaceAndPath(KaleidoscopeDoll.MOD_ID, "doll_entity_special");
+
+    /**
+     * 1.21.4+ 的物品模型由数据组件决定：把 special model 的 id 写到 ITEM_MODEL 上，
+     * 客户端就会用 assets/kaleidoscope_doll/items/doll_entity_special.json 的模型来渲染这个物品。
+     * <p>
+     * 方块状态仍保存在 {@code doll_entity} 组件里，供 special renderer 读取要画哪只玩偶。
      */
     private static void updateItemModel(ItemStack stack, BlockState state) {
         if (state == null || state.isAir()) {
@@ -86,8 +101,37 @@ public class DollEntityItem extends Item {
         }
         Identifier blockId = BuiltInRegistries.BLOCK.getKey(state.getBlock());
         if (blockId != null && blockId.getNamespace().equals(KaleidoscopeDoll.MOD_ID)) {
-            stack.set(DataComponents.ITEM_MODEL, blockId);
+            stack.set(DataComponents.ITEM_MODEL, SPECIAL_ITEM_MODEL);
         }
+    }
+
+    /**
+     * 旧存档迁移：老物品的 {@code ITEM_MODEL} 还是方块 id（{@code doll_N}），
+     * 取回背包后换成 special 模型。只在服务端改，组件才会同步到客户端。
+     */
+    @Override
+    public void inventoryTick(ItemStack stack, ServerLevel level, Entity entity, EquipmentSlot slot) {
+        if (!stack.is(ModItems.DOLL_ENTITY_ITEM) || !hasEntityData(stack)) {
+            return;
+        }
+        if (SPECIAL_ITEM_MODEL.equals(stack.get(DataComponents.ITEM_MODEL))) {
+            return;
+        }
+        stack.set(DataComponents.ITEM_MODEL, SPECIAL_ITEM_MODEL);
+    }
+
+    /**
+     * 从物品的 {@code doll_entity} 组件里读出玩偶方块状态（没有就用紫礼盒兜底）。
+     */
+    public static BlockState getBlockStateFromStack(ItemStack stack) {
+        CompoundTag entityTag = stack.get(ModDataComponent.TAG_DOLL_ENTITY);
+        if (entityTag != null) {
+            CompoundTag stateTag = entityTag.getCompoundOrEmpty(TAG_BLOCK_STATE);
+            if (!stateTag.isEmpty()) {
+                return NbtUtils.readBlockState(BuiltInRegistries.BLOCK, stateTag);
+            }
+        }
+        return ModBlocks.PURPLE_DOLL_GIFT_BOX.defaultBlockState();
     }
 
     public static Block getBlockFromItemStack(ItemStack stack) {
